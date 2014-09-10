@@ -1,0 +1,22 @@
+<phpunit colors="true"
+	stopOnError="true"
+	strict="true">
+
+	<testsuites>
+		<testsuite name="Internals">
+			<file>suites/SnakeDruid/InternalTest.php</file>
+		</testsuite>
+		<testsuite name="Basics">
+			<file>suites/SnakeDruid/BasicTest.php</file>
+			<file>suites/SnakeDruid/SelectionTest.php</file>
+		</testsuite>
+
+		<testsuite name="SnakeDruidTests">
+			<directory>suites/SnakeDruid</directory>
+			<exclude>suites/SnakeDruid/BasicTest.php</exclude>
+			<exclude>suites/SnakeDruid/SelectionTest.php</exclude>
+			<exclude>suites/SnakeDruid/InternalTest.php</exclude>
+		</testsuite>
+
+	</testsuites>
+</phpunit>
