@@ -289,6 +289,16 @@ class SnakeDruid {
 		}
 	}
 
+	private static function _join($table, $path, &$query) {
+		$prev = $table;
+		while($curr = array_shift($path)) {
+			$curr = static::_class_to_table($curr);
+			$query->join($prev, $curr);
+			$prev = $curr;
+		}
+		return $prev;
+	}
+
 	private static function _handle_params(&$query, $params, $glue='AND') {
 		$table_name = static::table_name();
 		foreach($params as $column => $value) {
@@ -299,6 +309,26 @@ class SnakeDruid {
 					break;
 				case '@order':
 					$query->order($value);
+					break;
+				case '@join':
+					foreach($value as $column => $v) {
+						$column = explode(':', $column);
+						$operator = 'using';
+						if(count($column) > 1) {
+							$operator = $column[1];
+						}
+						$path = explode('.', $column[0]);
+						$column = static::_class_to_table(array_pop($path));
+						$table = $table_name;
+						if(count($path) > 0) {
+							$table = static::_join($table_name, $path, $query);
+						}
+						
+						$query->join($table, $column, [
+							'params' => $value,
+							'operator' => $operator
+						]);
+					}
 					break;
 				default:
 					throw new Exception("not implemented: '$column'");
@@ -316,7 +346,8 @@ class SnakeDruid {
 			$column = $column[0];
 			$path = explode('.', $column);
 			if(count($path) > 1) {
-				throw new Exception('not implemented');
+				$column = array_pop($path);
+				$table = static::_join($table_name, $path, $query);
 			} else {
 				static::_assert_in_table($column, $table_name);
 				$table = $table_name;

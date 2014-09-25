@@ -5,11 +5,12 @@ class QueryBuilder {
 	public $select, $table_name;
 	public $pcount, $glue;
 	public $where = [];
-	public $joins = [];
+	public $joins = '';
 	public $params = [];
 	public $order = [];
 	public $limit = null;
 	public $default_order = null;
+	private $tables = [];
 
 	public function __construct($select, $table_name, $glue='AND', $pcount=0) {
 		$this->select = $select;
@@ -44,11 +45,7 @@ class QueryBuilder {
 	}
 
 	public function get_joins() {
-		$ret = '';
-		foreach($this->joins as $table => $term) {
-			$ret.= "JOIN \"$table\" ON ($term)\n";
-		}
-		return $ret;
+		return $this->joins;
 	}
 
 	public function get_where() {
@@ -57,6 +54,41 @@ class QueryBuilder {
 
 	public function params() {
 		return $this->params;
+	}
+
+	public function join($from, $to, $criteria=null) {
+		if(in_array($to, $this->tables)) {
+			return null;
+		}
+		if(isset($criteria)) {
+			switch($criteria['operator']) {
+			case 'using':
+				$this->joins .= 'JOIN "'.$to.'" USING("'.implode('", ', $criteria['params'])."\")\n";
+				break;
+			case 'on':
+				$this->joins .= 'JOIN "'.$to.'" ON(';
+				$joins = [];
+				foreach($criteria['params'] as $f => $t) {
+					$joins[] = '"'.$from.'"."'.$f.'" = "'.$to.'"."'.$t.'"';
+				}
+				$this->joins .= implode(' AND ', $joins).")\n";
+				break;
+			default:
+				throw new Exception("Unknown join type ".$criteria['type']);
+			}
+		} else {
+			$con = DBSchema::connection($from, $to);
+			if(empty($con)) {
+				throw new Exception("No connection from $from to $to");
+			}
+			$this->joins .= 'JOIN "'.$to.'" ON(';
+			$terms = [];
+			foreach($con['fields'] as $f => $t) {
+				$terms[] = '"'.$from.'"."'.$f.'" = "'.$to.'"."'.$t.'"';
+			}
+			$this->joins .= implode(' AND ', $terms).")\n";
+		}
+		$this->tables[] = $to;
 	}
 
 	public function where($table, $column, $operator, $value) {
