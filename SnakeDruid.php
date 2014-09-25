@@ -63,10 +63,10 @@ class SnakeDruid {
 			}
 			$data = $method::selection($params);
 			if($connection['outgoing']) {
-				return $data;
+				return $data[0];
 			}
 			if(count($data) >= 0) {
-				return $data[0];
+				return $data;
 			}
 			return null;
 		}
