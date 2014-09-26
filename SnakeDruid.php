@@ -331,7 +331,7 @@ class SnakeDruid {
 			} else {
 				$column = explode(':', $column);
 				if(count($column) > 1) {
-					throw new Exception('not implemented');
+					$operator = $column[1];
 				} else {
 					$operator = '=';
 				}

@@ -54,7 +54,14 @@ class PGDatabase {
 	}
 
 	public function query($query, $params=[]) {
-		return new PGResult(pg_query_params($this->db, $query, $params));
+		$para = [];
+		foreach($params as $p) {
+			if(is_array($p)) {
+				$p = self::escape_array($p);
+			}
+			$para[] = $p;
+		}
+		return new PGResult(pg_query_params($this->db, $query, $para));
 	}
 
 	public function select_db($database) {
@@ -83,5 +90,20 @@ class PGDatabase {
 		if($user) $s .= " user=$user";
 		if($password) $s .= " password=$password";
 		return pg_connect($s);
+	}
+
+	private static function escape_array($value) {
+		$ret = [];
+		foreach($value as $v) {
+			if(is_array($v)) {
+				$ret[] = escape_array($v);
+			} else {
+				if(!is_numeric($v)) {
+					$v= '"'.str_replace('"', '\\"', $t).'"';
+				}
+				$ret[] = $v;
+			}
+		}
+		return '{'.implode(',', $ret).'}';
 	}
 }

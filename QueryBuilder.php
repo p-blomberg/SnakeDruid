@@ -88,16 +88,58 @@ class QueryBuilder {
 		$this->tables[] = $to;
 	}
 
-	public function where($table, $column, $operator, $value) {
+	protected function operator($operator, &$value) {
+		$ret = ['after' => ''];
 		switch($operator) {
-		case 'in':
-		case 'null':
+		case NULL:
+			$ret['operator'] = '=';
+			return $ret;
+		case '=':
+		case '<':
+		case '>':
+		case '<=':
+		case '>=':
+		case '<>':
+			$ret['operator'] = $operator;
+			return $ret;
+		case '!=':
+			$ret['operator'] = '<>';
+			return $ret;
 		case 'not_null':
-			throw new Exception('not implemented');
+			$value = null;
+			// fallthrough
+		case 'distinct_from':
+			$ret['operator'] = 'IS DISTINCT FROM';
+			return $ret;
+		case 'null':
+			$value = null;
+			// fallthrough
+		case 'not_distinct_from':
+			$ret['operator'] = 'IS NOT DISTINCT FROM';
+			return $ret;
+		case 'in':
+			if(!is_array($value)) {
+				throw new Exception("operator in requires array as value, got '$value'");
+			}
+			$ret['operator'] = '= ANY(';
+			$ret['after']    = ')';
+			return $ret;
+		case 'not_in':
+			if(!is_array($value)) {
+				throw new Exception("operator not_in requires array as value, got '$value'");
+			}
+			$ret['operator'] = '<> ALL(';
+			$ret['after']    = ')';
+			return $ret;
 		default:
-			$this->where[] = "\"$table\".\"$column\" $operator $".++$this->pcount;
-			$this->params[] = $value;
+			throw new Exception("Operator '$operator' is not implemented");
 		}
+	}
+
+	public function where($table, $column, $operator, $value) {
+		$op = $this->operator($operator, $value);
+		$this->where[] = "\"$table\".\"$column\" ".$op['operator']." $".++$this->pcount.$op['after'];
+		$this->params[] = $value;
 	}
 
 	public function order($order) {
