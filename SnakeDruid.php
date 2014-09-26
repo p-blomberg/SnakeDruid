@@ -52,9 +52,6 @@ class SnakeDruid {
 	public function __call($method, $args) {
 		if(class_exists($method) && is_subclass_of($method, 'SnakeDruid')){
 			$connection = static::_connection($method);
-			if(empty($connection)) {
-				throw new Exception("No connection from '".get_called_class()."' to '$method'");
-			}
 
 			$params = [];
 			if(count($args) > 0) $params = $args[0];
@@ -100,9 +97,6 @@ class SnakeDruid {
 				throw new Exception("$value is not a $key!");
 			}
 			$con = static::_connection($key);
-			if(empty($key)) {
-				throw new Exception("No connection from '".get_called_class()."' to '$key'");
-			}
 
 			foreach($con['fields'] as $from => $to) {
 				if($value == null) {
@@ -285,7 +279,7 @@ class SnakeDruid {
 	protected static function _assert_in_table($column, $class=null) {
 		$table = static::_class_to_table($class);
 		if(!static::_in_table($column, $table)) {
-			throw new Exception("No such column '$column' in '$table'");
+			throw new Exception("No such column '$column' in table '$table'");
 		}
 	}
 

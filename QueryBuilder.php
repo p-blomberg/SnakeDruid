@@ -78,9 +78,6 @@ class QueryBuilder {
 			}
 		} else {
 			$con = DBSchema::connection($from, $to);
-			if(empty($con)) {
-				throw new Exception("No connection from $from to $to");
-			}
 			$this->joins .= 'JOIN "'.$to.'" ON(';
 			$terms = [];
 			foreach($con['fields'] as $f => $t) {

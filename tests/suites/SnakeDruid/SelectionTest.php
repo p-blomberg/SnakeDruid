@@ -72,7 +72,7 @@ class SelectionTest extends DatabaseTestCase {
 
 	/**
 	 * @expectedException Exception
-	 * @expectedExceptionMessage No such column 'foobar' in table 'model1' (value 'bar')
+	 * @expectedExceptionMessage No such column 'foobar' in table 'model_1'
 	 */
 	public function testUnknowColumn() {
 		Model1::selection(['foobar' => 'bar']);
@@ -80,7 +80,7 @@ class SelectionTest extends DatabaseTestCase {
 
 	/**
 	 * @expectedException Exception
-	 * @expectedExceptionMessage No such table 'foobar'
+	 * @expectedExceptionMessage No connection from 'model_1' to 'foobar'
 	 */
 	public function testInvalidJoin() {
 		Model1::selection(['foobar.foo' => 'a']);

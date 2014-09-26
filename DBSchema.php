@@ -103,10 +103,13 @@ class DBSchema {
 		return self::$tables[$table]['primary_key'];
 	}
 
-	public static function connection($from, $to) {
+	public static function connection($from, $to, $assert=true) {
 		if(array_key_exists($from, self::$connections) &&
 			array_key_exists($to, self::$connections[$from])) {
 			return self::$connections[$from][$to];
+		}
+		if($assert) {
+			throw new Exception("No connection from '$from' to '$to'");
 		}
 		return null;
 	}
