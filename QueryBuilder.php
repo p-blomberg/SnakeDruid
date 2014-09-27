@@ -74,7 +74,7 @@ class QueryBuilder {
 				$this->joins .= implode(' AND ', $joins).")\n";
 				break;
 			default:
-				throw new Exception("Unknown join type ".$criteria['type']);
+				throw new ParameterException("Unknown join type ".$criteria['type']);
 			}
 		} else {
 			$con = DBSchema::connection($from, $to);
@@ -131,7 +131,7 @@ class QueryBuilder {
 
 		case 'in':
 			if(!is_array($value) && $value !== null) {
-				throw new Exception("operator in requires array as value, got '$value'");
+				throw new ParameterException("operator in requires array as value, got '$value'");
 			}
 			$ret['operator'] = '= ANY(';
 			$ret['after']    = ')';
@@ -139,7 +139,7 @@ class QueryBuilder {
 
 		case 'not_in':
 			if(!is_array($value) && $value !== null) {
-				throw new Exception("operator not_in requires array as value, got '$value'");
+				throw new ParameterException("operator not_in requires array as value, got '$value'");
 			}
 			$ret['operator'] = '<> ALL(';
 			$ret['after']    = ')';
@@ -154,7 +154,7 @@ class QueryBuilder {
 			return $ret;
 
 		default:
-			throw new Exception("Operator '$operator' is not implemented");
+			throw new ParameterException("Operator '$operator' is not implemented");
 		}
 	}
 

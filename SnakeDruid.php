@@ -94,7 +94,7 @@ class SnakeDruid {
 	public function __set($key, $value) {
 		if(class_exists($key) && is_subclass_of($key, 'SnakeDruid')){
 			if(!is_a($value, $key) && $value != null) {
-				throw new Exception("$value is not a $key!");
+				throw new TypeMismatchException("$value is not a $key!");
 			}
 			$con = static::_connection($key);
 
@@ -197,7 +197,7 @@ class SnakeDruid {
 			case 1:
 				return $res[0];
 			default:
-				throw new Exception("Expected at most one match for query ".print_r($params, true)." but got ".count($sel));
+				throw new ToManyMatchesException("Expected at most one match for query ".print_r($params, true)." but got ".count($sel));
 		}
 	}
 
@@ -279,7 +279,7 @@ class SnakeDruid {
 	protected static function _assert_in_table($column, $class=null) {
 		$table = static::_class_to_table($class);
 		if(!static::_in_table($column, $table)) {
-			throw new Exception("No such column '$column' in table '$table'");
+			throw new NoColumnException("No such column '$column' in table '$table'");
 		}
 	}
 
@@ -351,3 +351,10 @@ class SnakeDruid {
 		}
 	}
 }
+
+class SnakeDruidException extends Exception {}
+class NoConnectionException extends SnakeDruidException {}
+class NoColumnException extends SnakeDruidException {}
+class TypeMismatchException extends SnakeDruidException {}
+class ToManyMatchesException extends SnakeDruidException {}
+class ParameterException extends SnakeDruidException {}

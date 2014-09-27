@@ -109,7 +109,7 @@ class DBSchema {
 			return self::$connections[$from][$to];
 		}
 		if($assert) {
-			throw new Exception("No connection from '$from' to '$to'");
+			throw new NoConnectionException("No connection from '$from' to '$to'");
 		}
 		return null;
 	}
