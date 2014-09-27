@@ -3,15 +3,67 @@ require_once 'PGDatabase.php';
 require_once 'QueryBuilder.php';
 require_once 'DBSchema.php';
 
-class SnakeDruid {
-	public $_data, $_exists;
+/**
+ * An abstract class that provides object-relational mapping.
+ *
+ * It requires a global variable $db that is a PGDatabase object.
+ * Extending classes must declair the method table_name() returning
+ *   the name of the associated table.
+ *
+ * Things in the db
+ *
+ * @method Object|null|array <class_name>(array $filter)
+ *   If there is a foreign key from this class to the other the coresponding
+ *   object is returned. If there is a foreign key to this table from the other
+ *   class a list of objects is returned.
+ *   @param array $filter @see SnakeDruid::selection() for syntax.
+ *   @throws NoConnectionException if there is no foreign key either direction.
+ */
+abstract class SnakeDruid {
+	/**
+	 * @var bool $output_htmlspecialchars
+	 * If set variables goten from this class will pass through
+	 * htmlspecialchars first.
+	 *
+	 * htmlspecialchars is called with the options ENT_QUOTES and 'utf-8'.
+	 */
 	public static $output_htmlspecialchars = true;
-	private static $column_ids = [];
+	protected $_data, $_exists;
 
+	/**
+	 * Returns the name of the table the class uses.
+	 *
+	 * This should be an abstract class but php does not allow abstract and
+	 * static at the same time.
+	 *
+	 * @return string The name of the associated table.
+	 */
+	protected static function table_name() {
+		throw new Exception(get_called_class().' does not implement method table_name()';
+	}
+
+	/**
+	 * If declared it will set the default order sets of objects will be
+	 * returned unless otherwise stated in the query.
+	 */
 	protected static function default_order() {
 		return null;
 	}
 
+	/**
+	 * Saves all changes to this object the database.
+	 *
+	 * This object is updated with any the result of any db trigers such
+	 * as an automatically updated modified_at field.
+	 *
+	 * Other objects pointing to the same row are not updated.
+	 *
+	 * It is suggested to overload this method implementing business logic
+	 * validations that span multiple columns here.
+	 *
+	 * @return void
+	 * @todo: implement object update
+	 */
 	public function commit() {
 		global $db;
 		if($this->_exists) {
@@ -31,6 +83,13 @@ class SnakeDruid {
 		}
 	}
 
+	/**
+	 * Deletes this object from the db.
+	 *
+	 * If this object is later commited, it will be recreated.
+	 *
+	 * @return void
+	 */
 	public function delete() {
 		global $db;
 		$table = static::table_name();
@@ -70,6 +129,22 @@ class SnakeDruid {
 		throw new Exception("$method is not implemented");
 	}
 
+	/**
+	 * @var mixed <column_name> set or get the value of the column for this row.
+	 *   Use @see SnakeDruid::commit() to write changes to db.
+	 *   @throws NoColumnException if column is not pressent in the table.
+	 *
+	 *   It is adviced that extending classes overload __set to implement
+	 *   validation of single values. __get may be overloaded for changing
+	 *   behavior of fetched variables or blocking access.
+	 *
+	 *   isset on variables works as expected.
+	 */
+	/**
+	 * @var Object|null|array <class_name> get associated Object or array of
+	 *   objects associated with foreign keys @see SnakeDruid::<class_name>().
+	 *   If the foreign key is outgoing this variable is settable
+	 */
 	public function __get($key) {
 		if($key == 'id' && !array_key_exists($key, $this->_data)) {
 			$key = static::_id_name();
@@ -124,6 +199,14 @@ class SnakeDruid {
 		}
 	}
 
+	/**
+	 * Create new object.
+	 *
+	 * @param array $data If provided it is expected to have only keys that are
+	 *   columns in the table.
+	 * @param bool $exists Tells the object if it the coresponding row exists in
+	 *   the database. Do not touch this unless you are sure of what you are doing!
+	 */
 	public function __construct($data=[], $exists=false) {
 		if($exists && empty($data)) {
 			throw new Exception("Can't create new instance marked as existing with an empty data array");
@@ -143,6 +226,9 @@ class SnakeDruid {
 		$this->_data = $data;
 	}
 
+	/**
+	 * Returns a set of objects
+	 */
 	public static function selection($filter=[]) {
 		global $db;
 		$query = static::_build_query($filter, '*');
