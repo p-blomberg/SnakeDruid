@@ -98,8 +98,14 @@ class PGDatabase {
 			if(is_array($v)) {
 				$ret[] = escape_array($v);
 			} else {
-				if(!is_numeric($v)) {
-					$v= '"'.str_replace('"', '\\"', $t).'"';
+				if(is_numeric($v)) {
+				} elseif(is_null($v)) {
+					$ret[] = 'NULL';
+				} elseif(is_bool($v)) {
+					$ret[] = $v ? 'TRUE' : 'FALSE';
+				} else {
+					$v = str_replace('\\', '\\\\', $v);
+					$v= '"'.str_replace('"', '\\"', $v).'"';
 				}
 				$ret[] = $v;
 			}
