@@ -39,13 +39,13 @@ class SnakeDruid {
 			DELETE FROM \"$table\"
 			WHERE ";
 		$w = [];
-		$params = [];
+		$filter = [];
 		foreach($pk as $i => $k) {
 			$w[] = "\"$k\" = $".($i+1);
-			$params[] = $this->$k;
+			$filter[] = $this->$k;
 		}
 		$query .= join(' AND ', $w);
-		$db->query($query, $params);
+		$db->query($query, $filter);
 		$this->_exists = false;
 	}
 
@@ -53,12 +53,12 @@ class SnakeDruid {
 		if(class_exists($method) && is_subclass_of($method, 'SnakeDruid')){
 			$connection = static::_connection($method);
 
-			$params = [];
-			if(count($args) > 0) $params = $args[0];
+			$filter = [];
+			if(count($args) > 0) $filter = $args[0];
 			foreach($connection['fields'] as $from => $to) {
-				$params[$to] = $this->_data[$from];
+				$filter[$to] = $this->_data[$from];
 			}
-			$data = $method::selection($params);
+			$data = $method::selection($filter);
 			if($connection['outgoing']) {
 				return $data[0];
 			}
@@ -143,9 +143,9 @@ class SnakeDruid {
 		$this->_data = $data;
 	}
 
-	public static function selection($params=[]) {
+	public static function selection($filter=[]) {
 		global $db;
-		$query = static::_build_query($params, '*');
+		$query = static::_build_query($filter, '*');
 		$query->default_order = static::default_order();
 
 		try {
@@ -162,9 +162,9 @@ class SnakeDruid {
 		return $ret;
 	}
 
-	public static function sum($field, $params=[]) {
+	public static function sum($field, $filter=[]) {
 		global $db;
-		$query = static::_build_query($params, '*');
+		$query = static::_build_query($filter, '*');
 
 		if(is_array($field)) {
 			throw new Exception('Not implemented');
@@ -178,9 +178,9 @@ class SnakeDruid {
 		}
 	}
 
-	public static function count($params=[]) {
+	public static function count($filter=[]) {
 		global $db;
-		$query = static::_build_query($params, '*');
+		$query = static::_build_query($filter, '*');
 
 		$q = "
 			SELECT COUNT(*) AS count
@@ -189,20 +189,20 @@ class SnakeDruid {
 		return $ret[0]['count'];
 	}
 
-	public static function one($params=[]) {
-		$res = static::selection($params);
+	public static function one($filter=[]) {
+		$res = static::selection($filter);
 		switch(count($res)) {
 			case 0:
 				return null;
 			case 1:
 				return $res[0];
 			default:
-				throw new ToManyMatchesException("Expected at most one match for query ".print_r($params, true)." but got ".count($sel));
+				throw new ToManyMatchesException("Expected at most one match for query ".print_r($filter, true)." but got ".count($sel));
 		}
 	}
 
-	public static function first($params=[]) {
-		$res = static::selection(array_merge($params, ['@limit' => 1]));
+	public static function first($filter=[]) {
+		$res = static::selection(array_merge($filter, ['@limit' => 1]));
 		if(empty($res)) return null;
 		return $res[0];
 	}
@@ -266,9 +266,9 @@ class SnakeDruid {
 		return DBSchema::columns(static::_class_to_table($class));
 	}
 
-	private static function _build_query($params, $select) {
+	private static function _build_query($filter, $select) {
 		$query = new QueryBuilder($select, static::table_name());
-		self::_handle_params($query, $params);
+		self::_handle_params($query, $filter);
 		return $query;
 	}
 
@@ -293,9 +293,9 @@ class SnakeDruid {
 		return $prev;
 	}
 
-	private static function _handle_params(&$query, $params, $glue='AND') {
+	private static function _handle_params(&$query, $filter, $glue='AND') {
 		$table_name = static::table_name();
-		foreach($params as $column => $value) {
+		foreach($filter as $column => $value) {
 			if($column[0] == '@') {
 				switch($column) {
 				case '@limit':
