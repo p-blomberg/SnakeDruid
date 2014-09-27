@@ -24,7 +24,7 @@ function db_init() {
 		$db_settings['host'],
 		$db_settings['username'],
 		$db_settings['password'],
-		"",
+		"postgres",
 		$db_settings['port']
 	);
 

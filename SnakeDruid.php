@@ -39,7 +39,7 @@ abstract class SnakeDruid {
 	 * @return string The name of the associated table.
 	 */
 	protected static function table_name() {
-		throw new Exception(get_called_class().' does not implement method table_name()';
+		throw new Exception(get_called_class().' does not implement method table_name()');
 	}
 
 	/**
