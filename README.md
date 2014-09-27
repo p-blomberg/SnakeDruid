@@ -25,6 +25,7 @@ Usage
 		FOREIGN KEY (foo_id) REFERENCES foos (foo_id),
 		PRIMARY KEY(foo_id, bar)
 	);
+	```
 2. Make sure to require SnakeDruid.php and PGDatabase.php.
 	```
 	require 'SnakeDruid.php';
