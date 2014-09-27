@@ -99,38 +99,60 @@ class QueryBuilder {
 		case '>':
 		case '<=':
 		case '>=':
-		case '<>':
+		case '<>':  // not eq
+		case '~':   // case sensitive regexp
+		case '~*';  // case insensitive regexp
+		case '!~':  // not match case sensitive
+		case '!~*': // not match case insensitive
 			$ret['operator'] = $operator;
 			return $ret;
+
 		case '!=':
 			$ret['operator'] = '<>';
 			return $ret;
+
+		case 'regexp':
+			$ret['operator'] = '~';
+			return $ret;
+
 		case 'not_null':
 			$value = null;
 			// fallthrough
 		case 'distinct_from':
 			$ret['operator'] = 'IS DISTINCT FROM';
 			return $ret;
+
 		case 'null':
 			$value = null;
 			// fallthrough
 		case 'not_distinct_from':
 			$ret['operator'] = 'IS NOT DISTINCT FROM';
 			return $ret;
+
 		case 'in':
-			if(!is_array($value)) {
+			if(!is_array($value) && $value !== null) {
 				throw new Exception("operator in requires array as value, got '$value'");
 			}
 			$ret['operator'] = '= ANY(';
 			$ret['after']    = ')';
 			return $ret;
+
 		case 'not_in':
-			if(!is_array($value)) {
+			if(!is_array($value) && $value !== null) {
 				throw new Exception("operator not_in requires array as value, got '$value'");
 			}
 			$ret['operator'] = '<> ALL(';
 			$ret['after']    = ')';
 			return $ret;
+
+		case 'like':
+			$ret['operator'] = 'LIKE';
+			return $ret;
+
+		case 'ilike':
+			$ret['operator'] = 'ILIKE';
+			return $ret;
+
 		default:
 			throw new Exception("Operator '$operator' is not implemented");
 		}
