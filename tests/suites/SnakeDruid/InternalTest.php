@@ -1,6 +1,6 @@
 <?php
 
-class BasicTest extends DatabaseTestCase {
+class InternalTest extends DatabaseTestCase {
 	public function testIdName() {
 		$this->assertEquals('id', Model1::test_id_name());
 	}

@@ -28,7 +28,7 @@ abstract class SnakeDruid {
 	 * htmlspecialchars is called with the options ENT_QUOTES and 'utf-8'.
 	 */
 	public static $output_htmlspecialchars = true;
-	protected $_data, $_exists;
+	protected $_data, $_exists, $_pk;
 
 	/**
 	 * Returns the name of the table the class uses.
@@ -67,7 +67,24 @@ abstract class SnakeDruid {
 	public function commit() {
 		global $db;
 		if($this->_exists) {
-			throw new Exception("update not implemented");
+			$query = 'UPDATE "'.$this->table_name()."\" SET\n";
+			$params = [];
+			$i = 0;
+			$set = [];
+			foreach($this->_data as $key => $value) {
+				$params[] = $value;
+				$set[] = '"'.$key.'" = $'.++$i;
+			}
+			$query .= join(",\n", $set);
+			$wheres = [];
+			foreach($this->_pk as $key => $value) {
+				$params[] = $value;
+				$wheres[] = '"'.$key.'" = $'.++$i."\n";
+			}
+			$query .= 'WHERE '.join('AND ', $wheres)."\n";
+			$query .= 'RETURNING *';
+			$res = $db->query($query, $params);
+			$this->_data = $res[0];
 		} else {
 			$query = 'INSERT INTO "'.$this->table_name().'" ("'.
 				join('", "', array_keys($this->_data))."\") VALUES\n(";
@@ -81,6 +98,7 @@ abstract class SnakeDruid {
 			$this->_exists = true;
 			$this->_data = $res[0];
 		}
+		$this->_update_primary_key();
 	}
 
 	/**
@@ -105,6 +123,7 @@ abstract class SnakeDruid {
 		}
 		$query .= join(' AND ', $w);
 		$db->query($query, $filter);
+		$this->_update_primary_key();
 		$this->_exists = false;
 	}
 
@@ -156,9 +175,9 @@ abstract class SnakeDruid {
 			}
 			return $ret;
 		}
-		if(!static::_in_table($column)) {
-			if(class_exists($method) && is_subclass_of($method, 'SnakeDruid')){
-				return $this->$method();
+		if(!static::_in_table($key)) {
+			if(class_exists($key) && is_subclass_of($key, 'SnakeDruid')){
+				return $this->$key();
 			}
 			static::_assert_in_table($key);
 		}
@@ -224,6 +243,7 @@ abstract class SnakeDruid {
 		}
 		$this->_exists = $exists;
 		$this->_data = $data;
+		$this->_update_primary_key();
 	}
 
 	/**
@@ -308,6 +328,17 @@ abstract class SnakeDruid {
 
 	public static function from_id($id) {
 		return static::from_field(static::_id_name(), $id);
+	}
+
+	protected function _update_primary_key() {
+		if($this->_exists) {
+			$this->_pk = [];
+			foreach(static::_primary_key() as $key) {
+				$this->_pk[$key] = $this->_data[$key];
+			}
+		} else {
+			$this->_pk = null;
+		}
 	}
 
 	protected static function _id_name($class=null) {
@@ -403,7 +434,7 @@ abstract class SnakeDruid {
 						if(count($path) > 0) {
 							$table = static::_join($table_name, $path, $query);
 						}
-						
+
 						$query->join($table, $column, [
 							'params' => $value,
 							'operator' => $operator
