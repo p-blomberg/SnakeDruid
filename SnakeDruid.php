@@ -228,6 +228,39 @@ abstract class SnakeDruid {
 
 	/**
 	 * Returns a set of objects
+	 *
+	 * @param array $filter The filter defining which objects to retreive
+	 *   where options:
+	 *     '[[table name | class name .] ...] column name [: operator [: anything]]' => $value
+	 *     example:
+	 *     'Foo.FooBar.column1:>' => 42
+	 *     This joins in the table for Foo, then the table for FooBar and makes
+	 *     sure column1 in FooBar is grater than 42. the tables are required to
+	 *     have foreign keys linking them.
+	 *   operators:
+	 *     If omited = is used.
+	 *     The operators =, !=, >=, <=, <>, ~, ~*, !~, !~*, like and ilike all
+	 *     work as specified in PostgreSQL documentation.
+	 *     regexp is an alias for ~.
+	 *     in and not_in checks if the columns value is repressented in the
+	 *     supplied array. @throws ParameterException if the value is not an
+	 *     array or null.
+	 *     null and not_null checks if the column is null.
+	 *     distinct_from and not_distinct_from works as != and = but handles
+	 *     comparisons with NULL. (NULL is not distinct from NULL but NULL != NULL)
+	 *   specials:
+	 *     @order order by suplied column or columns.
+	 *     @limit if one value; limit to that, if two values; limit the first
+	 *       offset the second.
+	 *     @join allows specifying join terms other then what foreign keys
+	 *       define. Specify this prior to using the columns for other purposes.
+	 *     @and Takes an array of clauses that all need to be true.
+	 *     @or Takes an array of clauses that any one of them needs to be true.
+	 *     @manual_query Array, lets you specify a custom whare clause it uses the
+	 *       keys 'where' for the query text (use $1, $2 etc for parameters) and
+	 *       'params' for the values to be used.
+	 *     @custom_order Adds a query part to the order by part of the query.
+	 * @return array of objects matching the filter.
 	 */
 	public static function selection($filter=[]) {
 		global $db;
@@ -248,6 +281,13 @@ abstract class SnakeDruid {
 		return $ret;
 	}
 
+	/**
+	 * Returns the sum of the field for all rows matching the filter.
+	 *
+	 * @param $field string|array the name or names of fields to be sumed up.
+	 * @param $filter @see SnakeDruid::selection for details.
+	 * @return numeric the sum of the field for all matching rows.
+	 */
 	public static function sum($field, $filter=[]) {
 		global $db;
 		$query = static::_build_query($filter, '*');
@@ -264,6 +304,12 @@ abstract class SnakeDruid {
 		}
 	}
 
+	/**
+	 * The number of rows matching the filter.
+	 *
+	 * @param filter $array @see SnakeDruid::selection for details.
+	 * @return integer the number of rows matched by the filter.
+	 */
 	public static function count($filter=[]) {
 		global $db;
 		$query = static::_build_query($filter, '*');
