@@ -41,9 +41,8 @@ function db_select_database() {
 
 function db_run_file($filename) {
 	global $db;
-	$handle = fopen(realpath(dirname(__FILE__) . "/" . $filename ), "r");
-	$contents = fread($handle, filesize($filename));
-	fclose($handle);
+	$path = realpath(dirname(__FILE__) . "/" . $filename );
+	$contents = file_get_contents($path);
 
 	if(!$db->multi_query($contents)) {
 		throw new Exception("Failed to execute query: {$db->error()}\n");
