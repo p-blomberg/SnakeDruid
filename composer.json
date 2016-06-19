@@ -1,0 +1,14 @@
+{
+    "name": "edruid/snake-druid",
+    "description": "An ORM for PHP based on BasicObject",
+    "license": "MIT",
+    "require-dev": {
+        "phpunit/phpunit": "^5.4"
+    },
+    "authors": [
+        {
+            "name": "Eric Druid",
+            "email": "eric.druid@gmail.com"
+        }
+    ]
+}
