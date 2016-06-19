@@ -45,12 +45,17 @@ class PGDatabase {
 	private $db, $port, $host, $user, $password, $database;
 
 	public function __construct($host, $user, $password, $database, $port) {
+		set_error_handler('self::ErrorHandler');
 		$this->port = $port;
 		$this->host = $host;
 		$this->user = $user;
 		$this->password = $password;
 		$this->database = $database;
 		$this->db = self::get_conn($host, $user, $password, $database, $port);
+		if(empty($this->db)) {
+			throw new PGDatabaseException("Failed to connect to database");
+		}
+		restore_error_handler();
 	}
 
 	public function query($query, $params=[]) {
@@ -112,4 +117,12 @@ class PGDatabase {
 		}
 		return '{'.implode(',', $ret).'}';
 	}
+
+	public static function ErrorHandler($errno, $errstr, $errfile, $errline) {
+		restore_error_handler();
+		throw new PGDatabaseException($errstr, $errno);
+	}
+}
+
+class PGDatabaseException extends Exception {
 }
