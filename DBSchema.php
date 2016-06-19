@@ -95,6 +95,9 @@ class DBSchema {
 
 	public static function columns($table) {
 		if(!isset(self::$tables)) self::initialize();
+		if(empty(self::$tables[$table])) {
+			throw new NoSuchTableException("No such table $table");
+		}
 		return self::$tables[$table]['columns'];
 	}
 

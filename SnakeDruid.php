@@ -518,6 +518,7 @@ abstract class SnakeDruid {
 class SnakeDruidException extends Exception {}
 class NoConnectionException extends SnakeDruidException {}
 class NoColumnException extends SnakeDruidException {}
+class NoSuchTableException extends SnakeDruidException {}
 class TypeMismatchException extends SnakeDruidException {}
 class ToManyMatchesException extends SnakeDruidException {}
 class ParameterException extends SnakeDruidException {}
