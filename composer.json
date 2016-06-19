@@ -13,5 +13,8 @@
 				"name": "Eric Druid",
 				"email": "eric.druid@gmail.com"
 			}
-		]
+		],
+		"autoload": {
+			"classmap": ["PGDatabase.php","SnakeDruid.php"]
+		}
 }
