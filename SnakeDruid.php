@@ -349,7 +349,7 @@ abstract class SnakeDruid {
 			case 1:
 				return $res[0];
 			default:
-				throw new ToManyMatchesException("Expected at most one match for query ".print_r($filter, true)." but got ".count($sel));
+				throw new ToManyMatchesException("Expected at most one match for query ".print_r($filter, true)." but got ".count($res));
 		}
 	}
 
