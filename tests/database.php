@@ -78,14 +78,3 @@ class CountingDB extends PGDatabase {
 		return new CountingStatement($this, $query);
 	}
 }
-
-class CountingStatement extends mysqli_stmt {
-	public function __construct($db, $query) {
-		parent::__construct($db, $query);
-	}
-
-	public function execute() {
-		++CountingDB::$queries;
-		return parent::execute();
-	}
-}

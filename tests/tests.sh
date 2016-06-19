@@ -1,5 +1,5 @@
 echo "Running tests\n"
-phpunit --bootstrap "bootstrap.php" --verbose $@
+phpunit/phpunit --bootstrap "bootstrap.php" --verbose $@
 
 ret=$?
 
