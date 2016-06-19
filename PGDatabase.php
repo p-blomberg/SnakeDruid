@@ -42,16 +42,17 @@ class PGResult implements SeekableIterator, arrayaccess{
 }
 
 class PGDatabase {
-	private $db, $port, $host, $user, $password, $database;
+	private $db, $port, $host, $user, $password, $database, $charset;
 
-	public function __construct($host, $user, $password, $database, $port) {
+	public function __construct($host, $user, $password, $database, $port, $charset="UTF8") {
 		set_error_handler('self::ErrorHandler');
 		$this->port = $port;
 		$this->host = $host;
 		$this->user = $user;
 		$this->password = $password;
 		$this->database = $database;
-		$this->db = self::get_conn($host, $user, $password, $database, $port);
+		$this->charset = $charset;
+		$this->db = self::get_conn($host, $user, $password, $database, $port, $charset);
 		if(empty($this->db)) {
 			throw new PGDatabaseException("Failed to connect to database");
 		}
@@ -72,7 +73,7 @@ class PGDatabase {
 	public function select_db($database) {
 		$this->database = $database;
 		pg_close($this->db);
-		$this->db = self::get_conn($this->host, $this->user, $this->password, $this->database, $this->port);
+		$this->db = self::get_conn($this->host, $this->user, $this->password, $this->database, $this->port, $this->charset);
 	}
 
 	public function multi_query($query) {
@@ -87,14 +88,19 @@ class PGDatabase {
 		pg_close($this->db);
 	}
 
-	private static function get_conn($host, $user, $password, $database, $port) {
+	private static function get_conn($host, $user, $password, $database, $port, $charset) {
 		$s = '';
 		if($database) $s .= "dbname=$database";
 		if($host) $s .= " host=$host";
 		if($port) $s .= " port=$port";
 		if($user) $s .= " user=$user";
 		if($password) $s .= " password=$password";
+		if($charset) $s .= " options='--client_encoding=$charset'";
 		return pg_connect($s);
+	}
+
+	public function get_options() {
+		return pg_options($this->db);
 	}
 
 	private static function escape_array($value) {
