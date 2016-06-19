@@ -167,6 +167,9 @@ abstract class SnakeDruid {
 	public function __get($key) {
 		if($key == 'id' && !array_key_exists($key, $this->_data)) {
 			$key = static::_id_name();
+			if($key === null) {
+				throw new Exception("Failed to find primary key");
+			}
 		}
 		if(array_key_exists($key, $this->_data)) {
 			$ret = $this->_data[$key];
