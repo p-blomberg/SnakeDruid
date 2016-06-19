@@ -65,6 +65,9 @@ class PGDatabase {
 			if(is_array($p)) {
 				$p = self::escape_array($p);
 			}
+			if(is_bool($p)) {
+				$p = self::escape_bool($p);
+			}
 			$para[] = $p;
 		}
 		return new PGResult(pg_query_params($this->db, $query, $para));
@@ -113,7 +116,7 @@ class PGDatabase {
 				} elseif(is_null($v)) {
 					$ret[] = 'NULL';
 				} elseif(is_bool($v)) {
-					$ret[] = $v ? 'TRUE' : 'FALSE';
+					$ret[] = self::escape_bool($v);
 				} else {
 					$v = str_replace('\\', '\\\\', $v);
 					$v= '"'.str_replace('"', '\\"', $v).'"';
@@ -122,6 +125,10 @@ class PGDatabase {
 			}
 		}
 		return '{'.implode(',', $ret).'}';
+	}
+
+	private static function escape_bool($value) {
+		return $value ? 'TRUE' : 'FALSE';
 	}
 
 	public static function ErrorHandler($errno, $errstr, $errfile, $errline) {
