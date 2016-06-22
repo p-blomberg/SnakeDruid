@@ -59,7 +59,7 @@ Class variables
 
 *The columns*
 
-The class `Foo` will have the variables 
+The class `Foo` will have the variables
 * `id` (alias of `foo_id`)
 * `foo_id`
 * `column1`
@@ -127,3 +127,15 @@ Filter syntax
 =============
 
 To be continued...
+
+Running the testsuite
+-------
+
+The easiest way to run the testsuite is to use the vagrant machine.
+
+1. Install vagrant, virtual box and ansible
+2. Initialize the vagrant machine: vagrant up
+3. ssh into the machine: vagrant ssh
+4. cd into the repository: cd /vagrant
+5. install dependancies: composer install
+6. run tests: ./tests/tests.sh

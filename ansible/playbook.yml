@@ -14,6 +14,7 @@
       apt: name=php5-cli state=installed
     - name: install php5-pgsql
       apt: name=php5-pgsql state=installed
+    - meta: flush_handlers
     - name: install postgres-9.4
       apt: name=postgresql-9.4 state=installed
     - name: install psycopg2
@@ -24,6 +25,11 @@
     - name: create pg user for tests
       postgresql_user: name=snake_druid_testing role_attr_flags=CREATEDB password=baa
       become_user: postgres
+
+    - name: install composer
+      shell: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+      args:
+        creates: /usr/local/bin/composer
 
   handlers:
     - name: re-generate locales
