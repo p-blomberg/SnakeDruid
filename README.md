@@ -8,6 +8,16 @@ State of project
 
 The project is in it's infancy and has only been tested with the test suite, not in an actual project.
 
+Database Privilages
+---------
+
+Trying to use tables the db user does not have any privilages for will result
+in a NoSuchTableException.
+
+If no other privilage than select is granted to a table foreign key references
+will not be visible and related tables will not be set up correctly. Also the
+alias `id` for the primary key will be unusable.
+
 Usage
 ----
 
