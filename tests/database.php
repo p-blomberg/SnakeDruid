@@ -25,10 +25,11 @@ function db_init() {
 		$db_settings['username'],
 		$db_settings['password'],
 		"postgres",
-		$db_settings['port']
+		$db_settings['port'],
+		$db_settings['charset']
 	);
 
-	$db->query("DROP DATABASE {$db_settings['database']}");
+	$db->query("DROP DATABASE IF EXISTS {$db_settings['database']}");
 	$db->query("CREATE DATABASE {$db_settings['database']}");
 	db_select_database();
 	db_run_file("db.sql");
@@ -68,10 +69,6 @@ function db_close() {
 class CountingDB extends PGDatabase {
 
 	public static $queries = 0;
-
-	public function __construct($host, $username, $password, $database, $port) {
-		parent::__construct($host, $username, $password, $database, $port);
-	}	
 
 	public function prepare($query) {
 		return new CountingStatement($this, $query);
