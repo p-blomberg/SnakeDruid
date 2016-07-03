@@ -86,5 +86,21 @@ class SelectionTest extends DatabaseTestCase {
 		Model1::selection(['foobar.foo' => 'a']);
 	}
 
+	/**
+	 * @expectedException Exception
+	 * @expectedExceptionMessage Invalid operator: '!'
+	 */
+	public function testInvalidOperatorForSum() {
+		Model1::sum(['id', '!', 'int1']);
+	}
+
+	/**
+	 */
+	public function testSum() {
+		Blueprint::make('Model1', ['int1' => 100, 'str1' => 'testSum']);
+		Blueprint::make('Model1', ['int1' => 10,  'str1' => 'testSum']);
+		$this->assertEquals(220, Model1::sum(['int1', '+', 'int1'], ['str1' => 'testSum']));
+	}
+
 	/* TODO: Add much more tests */
 }

@@ -315,16 +315,29 @@ abstract class SnakeDruid {
 		global $db;
 		$query = static::_build_query($filter, '*');
 
+		$sum_this = '';
 		if(is_array($field)) {
-			throw new Exception('Not implemented');
+			if(count($field) % 2 != 1) {
+				throw  new Exception('Invalid number of parameters for fields to summarize');
+			}
+			while($col = array_shift($field)) {
+				static::_assert_in_table($col);
+				$sum_this .= '"'.$col.'"';
+				$operator = array_shift($field);
+				if($operator) {
+					static::_assert_valid_operator($operator);
+					$sum_this .= $operator;
+				}
+			}
 		} else {
 			static::_assert_in_table($field);
-			$q = "
-				SELECT SUM(\"$field\") AS sum
-				FROM (".$query->query().") AS s";
-			$ret = $db->query($q, $query->params());
-			return $ret[0]['sum'];
+			$sum_this = '"'.$field.'"';
 		}
+		$q = "
+			SELECT SUM($sum_this) AS sum
+			FROM (".$query->query().") AS s";
+		$ret = $db->query($q, $query->params());
+		return $ret[0]['sum'];
 	}
 
 	/**
@@ -446,6 +459,12 @@ abstract class SnakeDruid {
 		$table = static::_class_to_table($class);
 		if(!static::_in_table($column, $table)) {
 			throw new NoColumnException("No such column '$column' in table '$table'");
+		}
+	}
+
+	protected static function _assert_valid_operator($operator) {
+		if(!in_array($operator, ['/', '*', '-', '+', '%'])) {
+			throw new Exception("Invalid operator: '$operator'");
 		}
 	}
 
