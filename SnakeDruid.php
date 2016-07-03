@@ -490,6 +490,16 @@ abstract class SnakeDruid {
 						]);
 					}
 					break;
+				case '@or':
+					$query2 = new QueryBuilder(null, static::table_name(), 'OR', $query);
+					self::_handle_params($query2, $value);
+					$query2->update_master($query);
+					break;
+				case '@and':
+					$query2 = new QueryBuilder(null, static::table_name(), 'AND', $query);
+					self::_handle_params($query2, $value);
+					$query2->update_master($query);
+					break;
 				default:
 					throw new Exception("not implemented: '$column'");
 				}

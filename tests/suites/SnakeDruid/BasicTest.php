@@ -149,5 +149,26 @@ class BasicTest extends DatabaseTestCase {
 		SnakeDruid::$output_htmlspecialchars = false;
 	}
 
+	/**
+	 * @depends testSelection
+	 */
+	public function testOr() {
+		$models = [
+			Blueprint::make('Model1', ['str1' => "or_test_1"]),
+			Blueprint::make('Model1', ['str1' => null, 'int1' => 4715]),
+		];
+		$res = Model1::selection([
+			"@or" => [
+				'str1' => "or_test_1",
+				'@and' => [
+					'int1' => 4715,
+					'str1:null' => null,
+				],
+			]
+		]);
+		$this->assertCount(2, $res);
+
+	}
+
 }
 

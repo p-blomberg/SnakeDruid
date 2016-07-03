@@ -1,22 +1,28 @@
 <?php
+require_once 'JoinBuilder.php';
 
 class QueryBuilder {
 
 	public $select, $table_name;
 	public $pcount, $glue;
 	public $where = [];
-	public $joins = '';
 	public $params = [];
 	public $order = [];
 	public $limit = null;
 	public $default_order = null;
-	private $tables = [];
+	public $join_builder;
 
-	public function __construct($select, $table_name, $glue='AND', $pcount=0) {
+	public function __construct($select, $table_name, $glue='AND', $master_query=null) {
 		$this->select = $select;
 		$this->table_name = $table_name;
-		$this->pcount = $pcount;
 		$this->glue = $glue;
+		if($master_query === null) {
+			$this->pcount = 0;
+			$this->join_builder = new JoinBuilder($table_name);
+		} else {
+			$this->pcount = $master_query->pcount;
+			$this->join_builder = $master_query->join_builder;
+		}
 	}
 
 	public function query() {
@@ -45,11 +51,11 @@ class QueryBuilder {
 	}
 
 	public function get_joins() {
-		return $this->joins;
+		return $this->join_builder->get_joins();
 	}
 
 	public function get_where() {
-		return implode($this->glue."\n", $this->where);
+		return implode(' '.$this->glue."\n", $this->where);
 	}
 
 	public function params() {
@@ -57,35 +63,13 @@ class QueryBuilder {
 	}
 
 	public function join($from, $to, $criteria=null) {
-		if(in_array($to, $this->tables)) {
-			return null;
-		}
-		if(isset($criteria)) {
-			switch($criteria['operator']) {
-			case 'using':
-				$this->joins .= 'JOIN "'.$to.'" USING("'.implode('", ', $criteria['params'])."\")\n";
-				break;
-			case 'on':
-				$this->joins .= 'JOIN "'.$to.'" ON(';
-				$joins = [];
-				foreach($criteria['params'] as $f => $t) {
-					$joins[] = '"'.$from.'"."'.$f.'" = "'.$to.'"."'.$t.'"';
-				}
-				$this->joins .= implode(' AND ', $joins).")\n";
-				break;
-			default:
-				throw new ParameterException("Unknown join type ".$criteria['type']);
-			}
-		} else {
-			$con = DBSchema::connection($from, $to);
-			$this->joins .= 'JOIN "'.$to.'" ON(';
-			$terms = [];
-			foreach($con['fields'] as $f => $t) {
-				$terms[] = '"'.$from.'"."'.$f.'" = "'.$to.'"."'.$t.'"';
-			}
-			$this->joins .= implode(' AND ', $terms).")\n";
-		}
-		$this->tables[] = $to;
+		$this->join_builder->join($from, $to, $criteria);
+	}
+
+	public function update_master(&$master) {
+		$master->pcount = $this->pcount;
+		$master->params = array_merge($master->params, $this->params);
+		$master->where[] = "({$this->get_where()})";
 	}
 
 	protected function operator($operator, &$value) {
