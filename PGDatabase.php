@@ -8,8 +8,8 @@ class PGResult implements SeekableIterator, arrayaccess{
 		$this->max = pg_num_rows($result);
 		if($this->max > 0) {
 			$this->types = [];
-			$num_feilds = pg_num_fields($result);
-			for($i = 0; $i<$num_feilds; $i++) {
+			$num_fields = pg_num_fields($result);
+			for($i = 0; $i<$num_fields; $i++) {
 				$this->types[pg_field_name($result, $i)] = pg_field_type($result, $i);
 			}
 		}
