@@ -15,14 +15,14 @@ class InternalTest extends DatabaseTestCase {
 
 	public function testColumns() {
 		$this->assertEquals(
-			['id', 'int1', 'str1', 'model2_id'],
+			['id', 'int1', 'str1', 'model2_id', 'bool1', 'array1', 'timestamp1', 'json1'],
 			Model2::test_columns('Model1')
 		);
 	}
 
 	public function testColumnsWithTableName() {
 		$this->assertEquals(
-			['id', 'int1', 'str1', 'model2_id'],
+			['id', 'int1', 'str1', 'model2_id', 'bool1', 'array1', 'timestamp1', 'json1'],
 			Model2::test_columns('model_1')
 		);
 	}

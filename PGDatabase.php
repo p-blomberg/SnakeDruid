@@ -1,11 +1,18 @@
 <?php
 class PGResult implements SeekableIterator, arrayaccess{
-	private $result, $row;
+	private $result, $row, $max, $types;
 
 	public function __construct($result) {
 		$this->result = $result;
 		$this->row = 0;
 		$this->max = pg_num_rows($result);
+		if($this->max > 0) {
+			$this->types = [];
+			$num_feilds = pg_num_fields($result);
+			for($i = 0; $i<$num_feilds; $i++) {
+				$this->types[pg_field_name($result, $i)] = pg_field_type($result, $i);
+			}
+		}
 	}
 
 	public function seek($offset) {
@@ -34,8 +41,38 @@ class PGResult implements SeekableIterator, arrayaccess{
 		return 0 <= $offset && $offset < $this->max;
 	}
 
+	private static function fix_type($value, $type){
+		if(is_null($value)) {
+			return $value;
+		}
+		if(substr($type, 0, 1) == '_') {
+			$values = explode(',', trim($value, '{}'));
+			$type = substr($type, 1);
+			$res = [];
+			foreach($values as $value) {
+				$res[] = PGResult::fix_type($value, $type);
+			}
+			return $res;
+		}
+		switch($type) {
+		case 'bool':
+			return $value == 't';
+		case 'timestamp':
+			return new DateTime($value);
+		case 'json':
+		case 'jsonb':
+			return json_decode($value);
+		default:
+			return $value;
+		}
+	}
+
 	public function offsetGet($offset) {
-		return pg_fetch_array($this->result, $offset, PGSQL_ASSOC);
+		$res = pg_fetch_array($this->result, $offset, PGSQL_ASSOC);
+		foreach($res as $key => $value) {
+			$res[$key] = PGResult::fix_type($value, $this->types[$key]);
+		}
+		return $res;
 	}
 	public function offsetSet($offset, $value) {}
 	public function offsetUnset($offset) {}

@@ -27,6 +27,11 @@ class BasicTest extends DatabaseTestCase {
 		$model1 = new Model1();
 		$model1->int1 = 1;
 		$model1->str1 = "Test";
+		$model1->bool1 = true;
+		$model1->array1 = [1,2,3];
+		$time = '2016-07-03 11:31:46';
+		$model1->timestamp1 = $time;
+		$model1->json1 = '{"key": "value"}';
 		$model1->commit();
 
 		$this->assertNotNull($model1->id);
@@ -38,6 +43,11 @@ class BasicTest extends DatabaseTestCase {
 
 		$this->assertEquals(1, $model1->int1);
 		$this->assertEquals("Test", $model1->str1);
+		$this->assertEquals(true, $model1->bool1);
+		$this->assertEquals([1,2,3], $model1->array1);
+		$this->assertEquals(DateTime::createFromFormat('Y-m-d H:i:s', $time),
+								  $model1->timestamp1);
+		$this->assertEquals('value', $model1->json1->key);
 	}
 
 	/**
