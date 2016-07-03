@@ -167,7 +167,27 @@ class BasicTest extends DatabaseTestCase {
 			]
 		]);
 		$this->assertCount(2, $res);
+	}
 
+	/**
+	 * @depends testSelection
+	 */
+	public function testMultipleOr() {
+		$date = date('Y-m-d H:i:s');
+		$models = [
+			Blueprint::make('Model1', ['str1' => "or_test_multiple", 'timestamp1' => $date]),
+			Blueprint::make('Model1', ['int1' => 5715, 'timestamp1' => $date]),
+		];
+		$res = Model1::selection([
+			"@or" => [
+				'str1' => "or_test_multiple",
+				'int1' => 5715,
+			],
+			"@or:banana" => [
+				"timestamp1" => $date
+			]
+		]);
+		$this->assertCount(2, $res);
 	}
 
 }

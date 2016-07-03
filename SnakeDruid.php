@@ -463,6 +463,9 @@ abstract class SnakeDruid {
 		$table_name = static::table_name();
 		foreach($filter as $column => $value) {
 			if($column[0] == '@') {
+				if(strpos($column, ':') !== false) {
+					$column = strstr($column, ':', true);
+				}
 				switch($column) {
 				case '@limit':
 					$query->limit($value);
