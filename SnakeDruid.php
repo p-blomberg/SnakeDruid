@@ -173,7 +173,7 @@ abstract class SnakeDruid {
 		}
 		if(array_key_exists($key, $this->_data)) {
 			$ret = $this->_data[$key];
-			if(static::$output_htmlspecialchars) {
+			if(static::$output_htmlspecialchars && is_string($ret)) {
 				$ret = htmlspecialchars($ret, ENT_QUOTES, 'utf-8');
 			}
 			return $ret;

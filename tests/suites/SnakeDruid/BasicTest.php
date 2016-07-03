@@ -131,5 +131,23 @@ class BasicTest extends DatabaseTestCase {
 		$this->assertEquals(50, Model1::count(['str1' => $key]));
 	}
 
+	/**
+	 * @depends testInsert
+	 */
+	public function testNullIsNullWithHtmlspecialchars() {
+		SnakeDruid::$output_htmlspecialchars = true;
+		$model1 = new Model1();
+		$model1->int1 = null;
+		$model1->commit();
+
+		$id = $model1->id;
+
+		unset($model1);
+
+		$model1 = Model1::from_id($id);
+		$this->assertNull($model1->int1);
+		SnakeDruid::$output_htmlspecialchars = false;
+	}
+
 }
 
