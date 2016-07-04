@@ -12,6 +12,10 @@
 			{
 				"name": "Eric Druid",
 				"email": "eric.druid@gmail.com"
+			},
+			{
+				"name": "Petter Blomberg",
+				"email": "git@petterblomberg.se"
 			}
 		],
 		"autoload": {
