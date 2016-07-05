@@ -61,7 +61,11 @@ class PGResult implements SeekableIterator, arrayaccess{
 			return new DateTime($value);
 		case 'json':
 		case 'jsonb':
-			return json_decode($value);
+			return json_decode($value, true);
+		case 'int2':
+		case 'int4':
+		case 'int8':
+			return (int)$value;
 		default:
 			return $value;
 		}

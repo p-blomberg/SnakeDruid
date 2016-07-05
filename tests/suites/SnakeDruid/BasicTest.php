@@ -47,7 +47,7 @@ class BasicTest extends DatabaseTestCase {
 		$this->assertEquals([1,2,3], $model1->array1);
 		$this->assertEquals(DateTime::createFromFormat('Y-m-d H:i:s', $time),
 								  $model1->timestamp1);
-		$this->assertEquals('value', $model1->json1->key);
+		$this->assertEquals(['key' => 'value'], $model1->json1);
 	}
 
 	/**
