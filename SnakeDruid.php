@@ -148,6 +148,20 @@ abstract class SnakeDruid {
 		throw new Exception("$method is not implemented");
 	}
 
+	protected function _clean_data($data) {
+		if(!static::$output_htmlspecialchars) {
+			return $data;
+		}
+		if(is_string($data)) {
+			$data = htmlspecialchars($data, ENT_QUOTES, 'utf-8');
+		} elseif(is_array($data)) {
+			foreach($data as $key => $value) {
+				$data[$key] = static::_clean_data($value);
+			}
+		}
+		return $data;
+	}
+
 	/**
 	 * @var mixed <column_name> set or get the value of the column for this row.
 	 *   Use @see SnakeDruid::commit() to write changes to db.
@@ -173,9 +187,7 @@ abstract class SnakeDruid {
 		}
 		if(array_key_exists($key, $this->_data)) {
 			$ret = $this->_data[$key];
-			if(static::$output_htmlspecialchars && is_string($ret)) {
-				$ret = htmlspecialchars($ret, ENT_QUOTES, 'utf-8');
-			}
+			$ret = static::_clean_data($ret);
 			return $ret;
 		}
 		if(!static::_in_table($key)) {
