@@ -2,7 +2,7 @@
 - hosts: default
   become: true
   tasks:
-    - name: create /opt/first_apt_cache_update_done
+    - name: update apt && upgrade packages
       copy:   dest=/opt/first_apt_cache_update_done content="" force=no
       notify: upgrade packages
       # Upgrade packages on first provisioning, but not later.
