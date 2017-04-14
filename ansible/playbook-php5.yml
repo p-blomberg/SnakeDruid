@@ -1,5 +1,5 @@
 ---
-- hosts: default
+- hosts: php5
   become: true
   tasks:
     - name: update apt && upgrade packages
@@ -19,9 +19,7 @@
     - name: uninstall exim4
       apt: name=exim4* state=absent
     - name: install php5
-      apt: name=php5-cli state=installed
-    - name: install php5-pgsql
-      apt: name=php5-pgsql state=installed
+      apt: name=php5-cli,php5-pgsql state=installed
     - meta: flush_handlers
     - name: install postgres-9.4
       apt: name=postgresql-9.4 state=installed
@@ -34,10 +32,15 @@
       postgresql_user: name=snake_druid_testing role_attr_flags=CREATEDB password=baa
       become_user: postgres
 
-    - name: install composer
-      shell: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-      args:
-        creates: /usr/local/bin/composer
+    - name: install composer (fetch)
+      get_url: checksum="sha384:669656bab3166a7aff8a7506b8cb2d1c292f042046c5a994c43155c0be6190fa0355160742ab2e1c88d40d5be660b410" url="https://getcomposer.org/installer" dest=/opt/composer_installer.php
+
+    - name: install composer (run)
+      command: php /opt/composer_installer.php --install-dir=/opt creates=/opt/composer.phar
+
+    - name: run composer
+      command: /opt/composer.phar install chdir=/vagrant
+      become_user: vagrant
 
   handlers:
     - name: re-generate locales
