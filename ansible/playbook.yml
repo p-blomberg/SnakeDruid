@@ -2,12 +2,20 @@
 - hosts: default
   become: true
   tasks:
-    #- name: upgrade packages
-    #  apt: update_cache=yes upgrade=safe
+    - name: create /opt/first_apt_cache_update_done
+      copy:   dest=/opt/first_apt_cache_update_done content="" force=no
+      notify: upgrade packages
+      # Upgrade packages on first provisioning, but not later.
+      # If you want packages to be upgraded later,
+      # delete /opt/first_apt_cache_update_done and re-provision.
     - name: reconfigure locales
       template: src=locale.gen.j2 dest=/etc/locale.gen owner=root group=root
       notify: re-generate locales
       # correct locales are needed for postgres to install properly.
+
+    - meta: flush_handlers
+      # To make sure packages are upgraded before we install more stuff
+
     - name: uninstall exim4
       apt: name=exim4* state=absent
     - name: install php5
@@ -34,3 +42,5 @@
   handlers:
     - name: re-generate locales
       command: /usr/sbin/locale-gen
+    - name: upgrade packages
+      apt: update_cache=yes upgrade=safe
