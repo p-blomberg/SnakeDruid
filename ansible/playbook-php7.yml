@@ -1,7 +1,12 @@
 ---
-- hosts: default
+- hosts: php7
   become: true
   tasks:
+    - name: install aptitude
+      apt: name=aptitude state=installed
+    - name: install acl
+      apt: name=acl state=installed
+      # setfacl is needed for postgres commands
     - name: create /opt/first_apt_cache_update_done
       copy:   dest=/opt/first_apt_cache_update_done content="" force=no
       notify: upgrade packages
@@ -18,13 +23,11 @@
 
     - name: uninstall exim4
       apt: name=exim4* state=absent
-    - name: install php5
-      apt: name=php5-cli state=installed
-    - name: install php5-pgsql
-      apt: name=php5-pgsql state=installed
+    - name: install php7.0
+      apt: name=php7.0-cli,php7.0-pgsql,php7.0-xml state=installed
     - meta: flush_handlers
-    - name: install postgres-9.4
-      apt: name=postgresql-9.4 state=installed
+    - name: install postgres-9.6
+      apt: name=postgresql-9.6 state=installed
     - name: install psycopg2
       apt: name=python-psycopg2 state=installed
     - name: create pg superuser for vagrant
@@ -34,10 +37,15 @@
       postgresql_user: name=snake_druid_testing role_attr_flags=CREATEDB password=baa
       become_user: postgres
 
-    - name: install composer
-      shell: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-      args:
-        creates: /usr/local/bin/composer
+    - name: install composer (fetch)
+      get_url: checksum="sha384:669656bab3166a7aff8a7506b8cb2d1c292f042046c5a994c43155c0be6190fa0355160742ab2e1c88d40d5be660b410" url="https://getcomposer.org/installer" dest=/opt/composer_installer.php
+
+    - name: install composer (run)
+      command: php /opt/composer_installer.php --install-dir=/opt creates=/opt/composer.phar
+
+    - name: run composer
+      command: /opt/composer.phar install chdir=/vagrant
+      become_user: vagrant
 
   handlers:
     - name: re-generate locales
