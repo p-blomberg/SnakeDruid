@@ -1,5 +1,5 @@
 <phpunit colors="true"
-	stopOnError="true"
+	stopOnError="false"
 	strict="true">
 
 	<testsuites>
