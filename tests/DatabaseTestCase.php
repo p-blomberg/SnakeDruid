@@ -9,7 +9,7 @@ class DatabaseTestCase extends PHPUnit_Framework_TestCase {
 	}
 
 	public function setUp() {
-		SnakeDruid::$output_htmlspecialchars = false;
+		\SnakeDruid\SnakeDruid::$output_htmlspecialchars = false;
 	}
 
 	public static function tearDownAfterClass() {

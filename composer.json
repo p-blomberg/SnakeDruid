@@ -19,6 +19,8 @@
 			}
 		],
 		"autoload": {
-			"classmap": ["PGDatabase.php","SnakeDruid.php","SnakeFetcher.php"]
+			"psr-4": {
+				"SnakeDruid\\": "src/"
+			}
 		}
 }

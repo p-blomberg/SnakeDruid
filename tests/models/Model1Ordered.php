@@ -1,6 +1,6 @@
 <?php
 
-class Model1Ordered extends SnakeDruid {
+class Model1Ordered extends \SnakeDruid\SnakeDruid {
 
 	public static $order = "int1";
 

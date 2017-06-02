@@ -1,4 +1,6 @@
 <?php
+namespace SnakeDruid;
+
 class SnakeFetcher {
 	/**
 	 * Fetch one object by value of one field
@@ -202,7 +204,7 @@ class SnakeFetcher {
 		if(!class_exists($class)) {
 			throw new \Exception('Class "'.$class.'" not found');
 		}
-		if(!is_subclass_of($class, 'SnakeDruid')) {
+		if(!is_subclass_of($class, '\SnakeDruid\SnakeDruid')) {
 			throw new \Exception("Class ".$class." is not a subclass of SnakeDruid");
 		}
 		return $class::table_name();

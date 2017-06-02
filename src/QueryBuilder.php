@@ -1,5 +1,5 @@
 <?php
-require_once 'JoinBuilder.php';
+namespace SnakeDruid;
 
 class QueryBuilder {
 

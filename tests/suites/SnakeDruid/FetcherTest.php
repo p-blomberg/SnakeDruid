@@ -1,4 +1,6 @@
 <?php
+use \SnakeDruid\SnakeFetcher;
+
 class FetcherTest extends DatabaseTestCase {
 
 	public function testFetchFromId() {

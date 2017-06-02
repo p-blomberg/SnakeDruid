@@ -1,4 +1,5 @@
 <?php
+namespace SnakeDruid;
 
 class JoinBuilder {
 	public $joins = '';

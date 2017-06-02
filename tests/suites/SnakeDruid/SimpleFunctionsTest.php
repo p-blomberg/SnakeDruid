@@ -49,17 +49,17 @@ class SimpleFunctionsTest extends DatabaseTestCase {
 		$html = "<html>Foobar \" <script foo='bar'>derp;</script> </html>";
 		$m1 = Blueprint::make('Model1', ['str1' => $html]);
 
-		SnakeDruid::$output_htmlspecialchars = false;
+		\SnakeDruid\SnakeDruid::$output_htmlspecialchars = false;
 
 		$m1 = Model1::from_id($m1->id);
 
 		$this->assertEquals($html, $m1->str1);
 
-		SnakeDruid::$output_htmlspecialchars = true;
+		\SnakeDruid\SnakeDruid::$output_htmlspecialchars = true;
 		$escaped = htmlspecialchars($html, ENT_QUOTES, 'utf-8');
 		$this->assertEquals($escaped, $m1->str1);
 
-		SnakeDruid::$output_htmlspecialchars = false;
+		\SnakeDruid\SnakeDruid::$output_htmlspecialchars = false;
 	}
 
 	public function testDefaultOrder() {

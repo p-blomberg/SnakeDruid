@@ -1,4 +1,6 @@
 <?php
+namespace SnakeDruid;
+
 class DBSchema {
 	private static $tables;
 	private static $connections = [];

@@ -1,5 +1,7 @@
 <?php
-class PGResult implements SeekableIterator, arrayaccess{
+namespace SnakeDruid;
+
+class PGResult implements \SeekableIterator, \arrayaccess{
 	private $result, $row, $max, $types;
 
 	public function __construct($result) {
@@ -58,7 +60,7 @@ class PGResult implements SeekableIterator, arrayaccess{
 		case 'bool':
 			return $value == 't';
 		case 'timestamp':
-			return new DateTime($value);
+			return new \DateTime($value);
 		case 'json':
 		case 'jsonb':
 			return json_decode($value, true);
@@ -176,7 +178,4 @@ class PGDatabase {
 		restore_error_handler();
 		throw new PGDatabaseException($errstr, $errno);
 	}
-}
-
-class PGDatabaseException extends Exception {
 }

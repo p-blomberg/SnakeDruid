@@ -1,5 +1,5 @@
 <?php
-class SnakeDruidTest extends SnakeDruid {
+class SnakeDruidTest extends \SnakeDruid\SnakeDruid {
 	public static function test_id_name($class=null) {
 		return static::_id_name($class);
 	}

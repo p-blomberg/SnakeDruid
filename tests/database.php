@@ -12,8 +12,6 @@ if(file_exists($settings_file)) {
 	exit(-1);
 }
 
-require_once "$path/PGDatabase.php";
-
 /*
  * Setup database for testing
  */
@@ -66,7 +64,7 @@ function db_close() {
  * Counting database class
  */
 
-class CountingDB extends PGDatabase {
+class CountingDB extends \SnakeDruid\PGDatabase {
 
 	public static $queries = 0;
 

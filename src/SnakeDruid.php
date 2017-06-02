@@ -1,7 +1,5 @@
 <?php
-require_once 'PGDatabase.php';
-require_once 'QueryBuilder.php';
-require_once 'DBSchema.php';
+namespace SnakeDruid;
 
 /**
  * An abstract class that provides object-relational mapping.
@@ -128,7 +126,7 @@ abstract class SnakeDruid {
 	}
 
 	public function __call($method, $args) {
-		if(class_exists($method) && is_subclass_of($method, 'SnakeDruid')){
+		if(class_exists($method) && is_subclass_of($method, '\SnakeDruid\SnakeDruid')){
 			$connection = static::_connection($method);
 
 			$filter = [];
@@ -145,7 +143,7 @@ abstract class SnakeDruid {
 			}
 			return null;
 		}
-		throw new Exception("$method is not implemented");
+		throw new \Exception("$method is not implemented");
 	}
 
 	protected function _clean_data($data) {
@@ -191,7 +189,7 @@ abstract class SnakeDruid {
 			return $ret;
 		}
 		if(!static::_in_table($key)) {
-			if(class_exists($key) && is_subclass_of($key, 'SnakeDruid')){
+			if(class_exists($key) && is_subclass_of($key, '\SnakeDruid\SnakeDruid')){
 				return $this->$key();
 			}
 			static::_assert_in_table($key);
@@ -201,7 +199,7 @@ abstract class SnakeDruid {
 	}
 
 	public function __set($key, $value) {
-		if(class_exists($key) && is_subclass_of($key, 'SnakeDruid')){
+		if(class_exists($key) && is_subclass_of($key, '\SnakeDruid\SnakeDruid')){
 			if(!is_a($value, $key) && $value != null) {
 				throw new TypeMismatchException("$value is not a $key!");
 			}
@@ -377,7 +375,7 @@ abstract class SnakeDruid {
 			case 1:
 				return $res[0];
 			default:
-				throw new ToManyMatchesException("Expected at most one match for query ".print_r($filter, true)." but got ".count($res));
+				throw new TooManyMatchesException("Expected at most one match for query ".print_r($filter, true)." but got ".count($res));
 		}
 	}
 
@@ -446,7 +444,7 @@ abstract class SnakeDruid {
 	protected static function _class_to_table($class) {
 		if(empty($class)) {
 			return static::table_name();
-		} elseif(class_exists($class) && is_subclass_of($class, 'SnakeDruid')){
+		} elseif(class_exists($class) && is_subclass_of($class, '\SnakeDruid\SnakeDruid')){
 			return $class::table_name();
 		} else {
 			return $class;
@@ -476,7 +474,7 @@ abstract class SnakeDruid {
 
 	protected static function _assert_valid_operator($operator) {
 		if(!in_array($operator, ['/', '*', '-', '+', '%'])) {
-			throw new Exception("Invalid operator: '$operator'");
+			throw new SnakeDruidException("Invalid operator: '$operator'");
 		}
 	}
 
@@ -561,11 +559,3 @@ abstract class SnakeDruid {
 		}
 	}
 }
-
-class SnakeDruidException extends Exception {}
-class NoConnectionException extends SnakeDruidException {}
-class NoColumnException extends SnakeDruidException {}
-class NoSuchTableException extends SnakeDruidException {}
-class TypeMismatchException extends SnakeDruidException {}
-class ToManyMatchesException extends SnakeDruidException {}
-class ParameterException extends SnakeDruidException {}

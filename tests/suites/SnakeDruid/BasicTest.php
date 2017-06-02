@@ -1,4 +1,5 @@
 <?php
+use \SnakeDruid\SnakeDruid;
 
 class BasicTest extends DatabaseTestCase {
 
@@ -69,7 +70,7 @@ class BasicTest extends DatabaseTestCase {
 	}
 
 	/**
-	 * @idepends testInsert
+	 * @depends testInsert
 	 */
 	public function testIsset() {
 		$model = Blueprint::make('Model1', true);
