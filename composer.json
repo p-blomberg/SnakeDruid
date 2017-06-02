@@ -19,6 +19,6 @@
 			}
 		],
 		"autoload": {
-			"classmap": ["PGDatabase.php","SnakeDruid.php"]
+			"classmap": ["PGDatabase.php","SnakeDruid.php","SnakeFetcher.php"]
 		}
 }
