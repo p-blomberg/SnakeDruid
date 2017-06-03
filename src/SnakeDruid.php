@@ -226,7 +226,7 @@ abstract class SnakeDruid {
 		try {
 			$data = $this->$key;
 			return isset($data);
-		} catch(Exception $e) {
+		} catch(\SnakeDruid\NoColumnException $e) {
 			return false;
 		}
 	}
