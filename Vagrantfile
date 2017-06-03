@@ -12,8 +12,8 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.define "php7" do |php7|
-    php7.vm.box = "remram/debian-9-amd64"
-    php7.vm.box_version = "0.17.01.18"
+    php7.vm.box = "fujimakishouten/debian-stretch64"
+    php7.vm.box_version = "9.0.0.20170602"
 
     php7.vm.provision "ansible" do |ansible|
       ansible.playbook = "ansible/playbook-php7.yml"
